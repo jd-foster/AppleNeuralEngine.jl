@@ -405,6 +405,11 @@ tile(x::Var, reps; name="tile") = op!(x.graph, "tile", (:x => x, :reps => collec
     pad(x, pad; mode="constant", constant_val=0)
 
 `pad` lists `[begin, end]` amounts for the last `length(pad) ÷ 2` dimensions.
+
+On the ANE (measured on M2, fp16), `mode="reflect"` copies every value exactly, but
+`mode="constant"` does not: values with |x| < 2^-7 snap to multiples of 2^-17
+(subnormals flush to zero), the 2^-7 binade is off by up to 1 ulp, and |x| ≥ 2^15
+becomes ±Inf. Values from 2^-6 up to 2^15 pass through unchanged.
 """
 function pad(x::Var, pad; mode="constant", constant_val=0, name="pad")
     # The ANE expects amounts for every dimension.

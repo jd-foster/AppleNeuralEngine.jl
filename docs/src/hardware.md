@@ -13,6 +13,9 @@ Observations made while building and testing this package on an M2 Max
   fp16. For `|x|` just below a half-integer the addition can round up.
 - `floor_div` uses an approximate reciprocal and can be off by one when the
   quotient is (nearly) an integer. `atan` is accurate to about 2.5%.
+- `pad` with `mode="constant"` does not copy values exactly: `|x| < 2^-7` snaps to
+  multiples of 2^-17 (subnormals become 0), the `[2^-7, 2^-6)` binade is off by up
+  to 1 ulp, and `|x| ≥ 2^15` becomes ±Inf. `mode="reflect"` is exact.
 
 ## Buffers
 

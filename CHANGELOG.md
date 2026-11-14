@@ -9,6 +9,10 @@ manager: before 1.0, a minor bump (0.1 → 0.2) may break things, a patch bump
 ## [Unreleased]
 
 ### Fixed
+- The `pad` test compared constant-mode padding exactly on random inputs and failed
+  about one run in five: the ANE's constant pad is lossy for `|x| < 2^-7` and
+  overflows for `|x| ≥ 2^15` (now documented in the `pad` docstring and the hardware
+  notes). The test now uses values in [0.5, 4].
 - Tracing is safe from several threads or tasks at once: the tracer state was one
   global, so concurrent `compile(f, x)` / `trace` calls could mix up their graphs
   ("Var … belongs to a different Graph"). It is now task-local.

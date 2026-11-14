@@ -86,7 +86,9 @@ if ANE_AVAILABLE
         x = M.input(g, :x, Float16, (1, 2, 4, 6))
         M.output!(g, M.pad(x, [1, 1, 2, 2]; mode), :y)
         p = compile(g)
-        x0 = randn(Float16, 6, 4, 2)                        # Julia (W, H, C)
+        # Julia (W, H, C). Keep |x| in [1/2, 4]: the ANE's constant pad is lossy for
+        # |x| < 2^-6 and overflows for |x| >= 2^15 (see the `pad` docstring).
+        x0 = Float16.(rand((-1, 1), 6, 4, 2) .* (0.5 .+ 3.5 .* rand(6, 4, 2)))
         y = p(x0)
         ref = similar(x0, 10, 6, 2)
         for c in 1:2, h in 1:6, w in 1:10
