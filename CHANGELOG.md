@@ -35,6 +35,12 @@ manager: before 1.0, a minor bump (0.1 → 0.2) may break things, a patch bump
   and `one_hot` still fail. `range_1d` works with fp16 operands.
 
 ### Added
+- An experimental Reactant.jl front end, as a package extension: after `using Reactant`,
+  `trace(f, inputs...; frontend=:reactant)` and `compile(f, inputs...; frontend=:reactant)`
+  trace with Reactant and translate the optimized StableHLO module to MIL. It covers
+  indexing, concatenation, padding, reductions, matrix products and arrays of up to
+  3 dimensions, and loops are unrolled. Data movement (indexing, shifts, concatenation,
+  padding) is exact. Its tests live in `test/reactant`, outside the main test target.
 - Hardware notes on data movement: a `concat` of two slices of one tensor that start
   at the same index fails to compile or silently returns wrong values; slices along
   the innermost axis at some nonzero offsets, `reverse`, replicate padding,

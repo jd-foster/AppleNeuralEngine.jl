@@ -40,6 +40,10 @@ a Neural Engine only with Julia 1.13 on an M2 Max.
 - **Tracing:** `compile(f, inputs...)` records an ordinary Julia function on
   vectors and matrices (broadcasting with any scalar function, matrix products,
   `sum`/`maximum`/`minimum`) as an ANE program. Captured arrays become weights.
+  With `using Reactant`, `compile(f, inputs...; frontend=:reactant)` traces with
+  [Reactant.jl](https://github.com/EnzymeAD/Reactant.jl) instead and translates its
+  StableHLO to MIL, which covers indexing, concatenation and unrolled loops too
+  (experimental).
 - **Graph builder:** `AppleNeuralEngine.MIL` builds programs op by op, following
   the coremltools MIL op set, with type and shape inference, int8 weights and
   automatic weight files.
@@ -112,6 +116,14 @@ julia --project=. -e 'using Pkg; Pkg.test()'
 
 Tests that need a Neural Engine are skipped when `functional()` is false (other
 hardware, virtual machines) or when `APPLENEURALENGINE_SKIP_ANE=1`.
+
+The Reactant front end has its own test environment, so the main tests do not
+download Reactant:
+
+```sh
+julia --project=test/reactant -e 'using Pkg; Pkg.instantiate()'
+julia --project=test/reactant test/reactant/runtests.jl
+```
 
 ## Caveats
 

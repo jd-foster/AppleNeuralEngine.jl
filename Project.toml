@@ -7,9 +7,16 @@ authors = ["Nikos Pitsianis <pitsiani@ece.auth.gr>"]
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 ObjectiveC = "e86c9b32-1129-44ac-8ea0-90d5bb39ded9"
 
+[weakdeps]
+Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
+
+[extensions]
+AppleNeuralEngineReactantExt = "Reactant"
+
 [compat]
 Libdl = "1"
 ObjectiveC = "7.2"
+Reactant = "0.2.308"
 julia = "1.10"
 
 [extras]

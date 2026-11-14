@@ -50,3 +50,12 @@ if ANE_AVAILABLE
     @test_throws ArgumentError trace(x -> x, (2, 2, 2))
 end
 end
+
+@testset "frontend selection" begin
+    @test_throws ArgumentError trace(x -> x .+ 1, (4,); frontend=:bogus)
+    # The Reactant front end is a package extension; without `using Reactant` it explains itself.
+    if Base.get_extension(AppleNeuralEngine, :AppleNeuralEngineReactantExt) === nothing
+        err = try trace(x -> x .+ 1, (4,); frontend=:reactant); nothing catch e; e end
+        @test err isa ArgumentError && occursin("using Reactant", err.msg)
+    end
+end

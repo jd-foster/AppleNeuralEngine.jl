@@ -1,0 +1,13 @@
+# Tests of the Reactant front end (ext/AppleNeuralEngineReactantExt.jl). Kept out of the
+# main test target so `Pkg.test()` and CI do not download Reactant's XLA binaries:
+#
+#     julia --project=test/reactant -e 'using Pkg; Pkg.instantiate()'
+#     julia --project=test/reactant test/reactant/runtests.jl
+[deps]
+AppleNeuralEngine = "b562e621-3829-4fd1-beb1-f0a496db6419"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+AppleNeuralEngine = {path = "../.."}

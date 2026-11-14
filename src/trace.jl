@@ -181,13 +181,29 @@ end
 # --- compile --------------------------------------------------------------------
 
 """
-    trace(f, inputs...) -> MIL.Graph
+    trace(f, inputs...; frontend=:builtin) -> MIL.Graph
 
 Record `f` applied to placeholders for `inputs` (example arrays, or sizes
 `(n,)` / `(m, n)`, which mean `Float16` inputs) as a MIL graph. `f` returns an
 array or a tuple of arrays.
+
+With `frontend=:reactant`, `f` is traced by [Reactant.jl](https://github.com/EnzymeAD/Reactant.jl)
+instead (load it first with `using Reactant`), and the optimized StableHLO
+module is translated to MIL. This covers far more of Julia than the built-in
+tracer, and loops are unrolled. Arrays may have up to 3 dimensions.
 """
-function trace(f, inputs...)
+function trace(f, inputs...; frontend::Symbol=:builtin)
+    frontend === :builtin && return _trace_builtin(f, inputs...)
+    frontend === :reactant || throw(ArgumentError("frontend must be :builtin or :reactant, got :$frontend"))
+    isempty(methods(_reactant_trace)) &&
+        throw(ArgumentError("frontend=:reactant needs Reactant.jl: run `using Reactant` first"))
+    return _reactant_trace(f, inputs...)
+end
+
+# Defined by the Reactant extension (ext/AppleNeuralEngineReactantExt.jl).
+function _reactant_trace end
+
+function _trace_builtin(f, inputs...)
     g = MIL.Graph()
     # Declare every input before casting any: MIL inputs must precede all ops.
     vars = map(enumerate(inputs)) do (i, spec)
@@ -214,9 +230,9 @@ function trace(f, inputs...)
 end
 
 """
-    compile(f, inputs...) -> ANEProgram
+    compile(f, inputs...; frontend=:builtin) -> ANEProgram
 
-Trace `f` (see [`trace`](@ref)) and compile it for the Neural Engine. The
+Trace `f` (see [`trace`](@ref) for the two front ends) and compile it for the Neural Engine. The
 program is callable: `program(x...)` returns the output (or a tuple of outputs).
 
 ```julia
@@ -225,7 +241,7 @@ program = compile(x -> max.(x * W, 0), randn(Float16, 256, 512))
 y = program(x)
 ```
 """
-compile(f::Function, inputs...) = compile(trace(f, inputs...))
+compile(f::Function, inputs...; frontend::Symbol=:builtin) = compile(trace(f, inputs...; frontend))
 
 function (program::ANEProgram)(inputs...)
     outputs = evaluate!(program, inputs...)

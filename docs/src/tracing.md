@@ -47,6 +47,46 @@ in fp16.
 fastest operation, so write layers in that orientation: rows are tokens or
 samples, columns are features.
 
+## The Reactant front end
+
+The built-in tracer covers vectors, matrices and a fixed set of operations. For
+anything more, `frontend=:reactant` traces the function with
+[Reactant.jl](https://github.com/EnzymeAD/Reactant.jl), lets Reactant optimize it,
+and translates the resulting StableHLO module to MIL. Reactant is an optional
+dependency: the front end becomes available after `using Reactant`.
+
+```julia
+using AppleNeuralEngine, Reactant
+
+function smooth(x)                  # indexing, vcat and a loop: not traceable by the built-in tracer
+    for _ in 1:16
+        x = 0.5f0 .* x .+ 0.25f0 .* (vcat(x[2:end], x[end:end]) .+ vcat(x[1:1], x[1:end-1]))
+    end
+    return x
+end
+
+x = rand(Float32, 256)
+program = compile(smooth, x; frontend=:reactant)
+program(x) ≈ smooth(x)              # up to fp16 rounding
+```
+
+Loops with a trip count known at trace time are unrolled, so the whole loop runs
+as one ANE program (a `while` loop would not run on the ANE). Supported: elementwise
+arithmetic and functions, comparisons and `ifelse`, broadcasting, matrix products
+(`dot_general` without batch dimensions), reductions (`sum`, `maximum`, `minimum`),
+reshapes, transposes, slices, concatenation, padding and `iota`, on arrays of up to
+3 dimensions. Anything else raises an `ArgumentError` naming the StableHLO op.
+
+Indexing, shifts, concatenation and padding copy values exactly, tiny and huge ones
+included: the front end avoids the ANE's lossy paths for these and works around an
+ANE compiler bug (see [Hardware notes](@ref)). Data movement still costs more than
+arithmetic: an unrolled 3-point stencil on 256 cells costs about 0.6 µs per step
+(1.1 µs on 64 columns of 256), against 0.15 µs per step when the same stencil is
+written as a convolution with [The MIL graph builder](@ref).
+
+This front end is experimental: it relies on Reactant's internal MLIR interface,
+which can change between Reactant releases.
+
 ## Layout
 
 A traced `(T, D)` matrix is held as the MIL tensor `[1, D, 1, T]`. That is the
