@@ -8,6 +8,15 @@ manager: before 1.0, a minor bump (0.1 → 0.2) may break things, a patch bump
 
 ## [Unreleased]
 
+### Changed
+- Requires ObjectiveC.jl 7.2 (was 6.0.1). Version 7 replaced `@autoreleasepool` with
+  per-call pools and managed wrappers; the bindings now use managed wrappers for
+  temporary objects (released eagerly, so the ANE gets a closed model's resources
+  back at once), `Out{NSError}` for error out-parameters, and still keep each
+  program's model and request as explicitly retained pointers, so that a program's
+  finalizer unloads the model before anything releases it. `evaluate!` with
+  preallocated outputs still allocates nothing.
+
 ### Fixed
 - The `pad` test compared constant-mode padding exactly on random inputs and failed
   about one run in five: the ANE's constant pad is lossy for `|x| < 2^-7` and

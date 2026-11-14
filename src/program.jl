@@ -19,6 +19,7 @@ mutable struct ANEProgram
     output_types::Vector{DataType}
     input_layouts::Vector{Tuple{Int,Int}}
     output_layouts::Vector{Tuple{Int,Int}}
+    error_slot::Out{NSError}        # reused by every evaluation
 end
 
 """
@@ -118,7 +119,8 @@ function compile(mil::AbstractString; input_shapes, output_shapes,
     inlayouts, outlayouts = something(_layouts, (map(_layout, inputs, intypes), map(_layout, outputs, outtypes)))
     model, request, insurf, outsurf, dir = _compile_native(
         Vector{UInt8}(codeunits(mil)), weights, inlayouts, outlayouts)
-    program = ANEProgram(model, request, insurf, outsurf, dir, inputs, outputs, intypes, outtypes, inlayouts, outlayouts)
+    program = ANEProgram(model, request, insurf, outsurf, dir, inputs, outputs, intypes, outtypes, inlayouts, outlayouts,
+                         Out{NSError}())
     finalizer(close!, program)
     return program
 end
@@ -151,7 +153,7 @@ function evaluate!(outputs::Union{Tuple,AbstractVector{<:Array}}, program::ANEPr
     for (input, surface, layout) in zip(inputs, program.input_surfaces, program.input_layouts)
         GC.@preserve input _copy_surface!(surface, pointer(input), layout..., true)
     end
-    _evaluate_native(program.model, program.request)
+    _evaluate_native(program.model, program.request, program.error_slot)
     for (output, surface, layout) in zip(outputs, program.output_surfaces, program.output_layouts)
         GC.@preserve output _copy_surface!(surface, pointer(output), layout..., false)
     end
