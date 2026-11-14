@@ -35,6 +35,11 @@ manager: before 1.0, a minor bump (0.1 → 0.2) may break things, a patch bump
   and `one_hot` still fail. `range_1d` works with fp16 operands.
 
 ### Added
+- Hardware notes on data movement: a `concat` of two slices of one tensor that start
+  at the same index fails to compile or silently returns wrong values; slices along
+  the innermost axis at some nonzero offsets, `reverse`, replicate padding,
+  convolutions and matrix products are not exact copies, while `transpose`,
+  `reshape`, other slices and reflect padding are. Workarounds are given.
 - `output_dtype` keyword (`Int32` or `UInt16`) for `MIL.reduce_argmax` and
   `MIL.reduce_argmin`, and `indices_dtype`, `sort` and `return_indices` keywords for
   `MIL.topk`. The ANE rejects int32 tensors; with uint16 output, argmax and argmin
