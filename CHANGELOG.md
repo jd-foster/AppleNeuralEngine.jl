@@ -9,6 +9,12 @@ manager: before 1.0, a minor bump (0.1 → 0.2) may break things, a patch bump
 ## [Unreleased]
 
 ### Changed
+- The op support page now covers several processors. `tools/probe_ops.jl` writes one
+  result file per processor to `docs/op_support/`, and `tools/op_support_table.jl` builds
+  the page from all of them: for each op, the processors it works and fails on, a roster
+  of every M processor (measured or not), and a list of the ops whose outcome differs.
+  First M4 results by Mathieu Bouchard (#4): `sin` and `cos` compile and run on the M4,
+  unlike the M2 Max.
 - Requires ObjectiveC.jl 7.2 (was 6.0.1). Version 7 replaced `@autoreleasepool` with
   per-call pools and managed wrappers; the bindings now use managed wrappers for
   temporary objects (released eagerly, so the ANE gets a closed model's resources

@@ -1,0 +1,163 @@
+# chip: Apple M4
+# macos: 27.0.1
+# date: 2026-10-30
+# by: Mathieu Bouchard (#4)
+# note: measured with the 167-case probe of 2026-10-30; the 10 cases the package has fixed or renamed since (`floor_div`, both `pad` modes, `gather_along_axis`, `gather_nd`, and the old `reduce_argmax`, `reduce_argmin`, `topk`, `range_1d`, `gather` cases) are left out until the probe is re-run on an M4.
+category	op	status	err	note
+elementwise unary	abs	✓	0.0	
+elementwise unary	acos	✗		compile fails (InvalidMILProgram)
+elementwise unary	asin	✗		compile fails (InvalidMILProgram)
+elementwise unary	atan	≈	0.025	approximate
+elementwise unary	atanh	✗		compile fails (InvalidMILProgram)
+elementwise unary	ceil	✓	0.0	
+elementwise unary	cos	✓	0.00063	
+elementwise unary	cosh	✗		compile fails (InvalidMILProgram)
+elementwise unary	erf	✓	0.00084	
+elementwise unary	exp	✓	0.00076	
+elementwise unary	exp2	✓	0.00036	
+elementwise unary	floor	✓	0.0	
+elementwise unary	round	✓	0.0	
+elementwise unary	sign	✓	0.0	
+elementwise unary	sin	✓	0.00062	
+elementwise unary	sinh	✗		compile fails (InvalidMILProgram)
+elementwise unary	sqrt	✓	0.00077	
+elementwise unary	square	✓	0.00029	
+elementwise unary	tan	✗		compile fails (InvalidMILProgram)
+elementwise unary	tanh	✓	0.0016	
+elementwise unary	inverse	✓	0.00058	
+elementwise unary	log	✓	0.001	
+elementwise unary	rsqrt	✓	0.0014	
+elementwise unary	rsqrt (no epsilon)	✗		compile fails (InvalidMILProgram)
+elementwise unary	threshold	✓	1.4e-5	
+elementwise unary	clip	✓	0.0	
+elementwise unary	cast (fp16→fp32→fp16)	✗		compile fails (CompilationFailure)
+elementwise unary	logical_not	✓	0.0	
+activation	relu	✓	0.0	
+activation	relu6	✓	0.0	
+activation	sigmoid	✓	0.0034	
+activation	silu	✓	0.0043	
+activation	softplus	✓	0.00076	
+activation	softsign	✓	0.00092	
+activation	gelu	✓	0.0016	
+activation	gelu (tanh approx.)	✓	0.0018	
+activation	elu	✓	0.00094	
+activation	leaky_relu	✓	5.5e-5	
+activation	thresholded_relu	✓	0.0	
+activation	clamped_relu	✓	0.00015	
+activation	linear_activation	✓	0.00025	
+activation	scaled_tanh	✓	0.0017	
+activation	sigmoid_hard	✓	0.00029	
+activation	prelu	✓	9.4e-5	
+activation	softplus_parametric	✓	0.0012	
+activation	softmax	✓	0.00074	
+elementwise binary	add	✓	0.00036	
+elementwise binary	sub	✓	0.00033	
+elementwise binary	mul	✓	0.00028	
+elementwise binary	real_div	✓	0.00073	
+elementwise binary	pow	✓	0.00075	
+elementwise binary	maximum	✓	0.0	
+elementwise binary	minimum	✓	0.0	
+elementwise binary	mod	✗		compile fails (InvalidMILProgram)
+elementwise binary	add (broadcast [1,C,1,1])	✓	0.00036	
+elementwise binary	mul (scalar literal)	✓	0.00037	
+elementwise binary	equal	✓	0.0	
+elementwise binary	not_equal	✓	0.0	
+elementwise binary	greater	✓	0.0	
+elementwise binary	greater_equal	✓	0.0	
+elementwise binary	less	✓	0.0	
+elementwise binary	less_equal	✓	0.0	
+elementwise binary	logical_and	✓	0.0	
+elementwise binary	logical_or	✗		compile fails (InvalidMILProgram)
+elementwise binary	logical_xor	✗		compile fails (InvalidMILProgram)
+elementwise binary	select	✓	0.0	
+reduction	reduce_sum axes=[1]	✓	0.001	
+reduction	reduce_sum axes=[3]	✓	0.0011	
+reduction	reduce_sum axes=[2, 3]	✓	0.0011	
+reduction	reduce_mean axes=[1]	✓	0.00057	
+reduction	reduce_mean axes=[3]	✓	0.0013	
+reduction	reduce_mean axes=[2, 3]	✓	0.00059	
+reduction	reduce_max axes=[1]	✓	0.0	
+reduction	reduce_max axes=[3]	✓	0.0	
+reduction	reduce_max axes=[2, 3]	✓	0.0	
+reduction	reduce_min axes=[1]	✓	0.0	
+reduction	reduce_min axes=[3]	✓	0.0	
+reduction	reduce_min axes=[2, 3]	✓	0.0	
+reduction	reduce_prod axes=[1]	✗		compile fails (InvalidMILProgram)
+reduction	reduce_l1_norm axes=[1]	✓	0.0012	
+reduction	reduce_l1_norm axes=[3]	✓	0.0011	
+reduction	reduce_l1_norm axes=[2, 3]	✓	0.0009	
+reduction	reduce_l2_norm axes=[1]	✓	0.00077	
+reduction	reduce_l2_norm axes=[3]	✓	0.0008	
+reduction	reduce_l2_norm axes=[2, 3]	✓	0.00057	
+reduction	reduce_sum_square axes=[1]	✓	0.00063	
+reduction	reduce_sum_square axes=[3]	✓	0.00077	
+reduction	reduce_sum_square axes=[2, 3]	✓	0.001	
+reduction	reduce_log_sum axes=[1]	✓	0.0014	
+reduction	reduce_log_sum axes=[3]	✓	0.0011	
+reduction	reduce_log_sum axes=[2, 3]	✓	0.00095	
+reduction	reduce_log_sum_exp axes=[1]	✓	0.00098	
+reduction	reduce_log_sum_exp axes=[3]	✓	0.0011	
+reduction	reduce_log_sum_exp axes=[2, 3]	✓	0.001	
+convolution	conv 1x1	✓	0.00036	
+convolution	conv 3x3 same	✓	0.0004	
+convolution	conv 3x3 stride 2	✓	0.00034	
+convolution	conv + bias	✓	0.00051	
+convolution	conv depthwise 3x3	✓	0.00034	
+convolution	conv int8 weights (constexpr_affine_dequantize)	✓	0.0044	
+convolution	conv_transpose 2x2 stride 2	✓ runs		no reference
+convolution	conv 1D	✓ runs		no reference
+pooling	max_pool	✓	0.0	
+pooling	avg_pool	✓	0.00068	
+pooling	l2_pool	✓	0.00051	
+linear algebra	matmul	✓	0.00045	
+linear algebra	matmul transpose_y	✓	0.00028	
+linear algebra	matmul (constant)	✓	0.00046	
+linear algebra	linear	✓	0.00045	
+linear algebra	einsum nchw,nwhu->nchu	✓	0.00032	
+normalization	layer_norm	✓	0.00091	
+normalization	layer_norm gamma/beta (last axis)	✓	0.001	
+normalization	batch_norm	✓	0.00056	
+normalization	instance_norm	✓	0.00091	
+normalization	l2_norm	✓ runs		no reference
+normalization	local_response_norm	✓ runs		no reference
+tensor transformation	reshape	✓	0.0	
+tensor transformation	transpose	✓	0.0	
+tensor transformation	transpose (last two)	✓	0.0	
+tensor transformation	expand_dims + squeeze	✓	0.0	
+tensor transformation	reverse	✓	2.2e-6	
+tensor transformation	slice_by_index	✓	0.0	
+tensor transformation	slice_by_index (stride 2)	✓	0.0	
+tensor transformation	slice_by_size	✓	0.0	
+tensor transformation	depth_to_space	✓ runs		no reference
+tensor transformation	space_to_depth	✓ runs		no reference
+tensor transformation	pixel_shuffle	✓ runs		no reference
+tensor transformation	pixel_unshuffle	✗		compile fails (InvalidMILProgram)
+tensor transformation	sliding_windows	✗		compile fails (InvalidMILProgram)
+tensor operation	concat	✓	0.0	
+tensor operation	concat (last axis)	✓	0.0	
+tensor operation	split	✓	0.0	
+tensor operation	stack	✓	0.0	
+tensor operation	tile	✓	0.0	
+tensor operation	flatten2d	✓	0.0	
+tensor operation	band_part	✗		compile fails (InvalidMILProgram)
+tensor operation	cumsum	✗		compile fails (InvalidMILProgram)
+tensor operation	argsort	✗		compile fails (InvalidMILProgram)
+tensor operation	one_hot	✗		compile fails (InvalidMILProgram)
+tensor operation	fill	✓	0.00037	
+tensor operation	shape	✗		compile fails (InvalidMILProgram)
+tensor operation	identity	✓	0.0	
+scatter/gather	scatter	✗		compile fails (InvalidMILProgram)
+scatter/gather	scatter_along_axis	✗		compile fails (InvalidMILProgram)
+scatter/gather	scatter_nd	✗		compile fails (InvalidMILProgram)
+image resizing	upsample_nearest_neighbor	✓	2.2e-6	
+image resizing	upsample_bilinear	✓ runs		no reference
+image resizing	resize_nearest_neighbor	✓	1.9e-6	
+image resizing	resize_bilinear	✓ runs		no reference
+image resizing	crop	✓	0.0	
+attention	scaled_dot_product_attention	✓	0.0014	
+recurrent	lstm	✗		compile fails (InvalidMILProgram)
+recurrent	gru	✗		compile fails (InvalidMILProgram)
+recurrent	rnn	✗		compile fails (InvalidMILProgram)
+quantization	quantize → dequantize	✓	0.014	
+random	random_normal	✗		compile fails (InvalidMILProgram)
+random	random_uniform	✗		compile fails (InvalidMILProgram)
